@@ -1,0 +1,20 @@
+# for gcc 2.x on AIX
+# uses ppcpacked because it doesn't do mac68k alignment
+# DOESN'T WORK YET
+
+CC=gcc
+CFLAGS=-O2 -I/usr/include/mac -D_XOPEN_SOURCE -DSYS_V -DAIX4_x -gxcoff 
+LDFLAGS=-lae -lat
+HEADERS=AIXAESuite.h debug.h tridentd.h ppcpacked.h
+OBJS=client.o handlers.o ppcpacked.o tridentd.o status.o
+DAEMON=nutridentd
+
+$(DAEMON): $(OBJS)
+	$(CC) -o $@ $(LDFLAGS) $(OBJS)
+
+clean:
+	rm -f $(DAEMON) $(OBJS)
+
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) -c -o $@ $<
+

@@ -1,0 +1,38 @@
+PROGRAMS	= flexibled simpled
+
+FOBJS		= fobjs/tridentd.o fobjs/ppcstuff.o fobjs/client.o \
+			fobjs/status.o fobjs/handlers.o
+SOBJS		= sobjs/tridentd.o sobjs/client.o sobjs/status.o \
+			sobjs/handlers.o
+LDFLAGS		= -L../../../../export/power/usr/lib
+LIBS		= -lae -lat
+HEADERS		= tridentd.h debug.h AIXAESuite.h
+INCFLAGS	= -I/usr/include/mac
+
+DEBUG		= -D_DEBUG=0 -w
+OSVERSION	= -DAIX4_x
+
+CFLAGS		= ${DEBUG} ${OSVERSION} -D_XOPEN_SOURCE -DSYS_V \
+		-qcpluscmt -qextchk -qfullpath -qinfo -qmacpstr -qproto \
+		-qlanglvl=ansi -qtune=604
+
+
+all : fobjs sobjs $(PROGRAMS)
+
+clean:
+	rm -f $(PROGRAMS) $(FOBJS) $(SOBJS)
+
+flexibled : $(FOBJS)
+	$(CC) -o $@ $(LDFLAGS) $(FOBJS) $(LIBS)
+
+simpled : $(SOBJS)
+	$(CC) -o $@ $(LDFLAGS) $(SOBJS) $(LIBS)
+
+fobjs sobjs:
+	@test -d $@ || mkdir $@
+
+$(FOBJS) : $(@F:.o=.c) $(HEADERS)
+	$(CC) -c -o $@ $(CFLAGS) $(INCFLAGS) $(*F).c
+
+$(SOBJS) : $(@F:.o=.c) $(HEADERS)
+	$(CC) -c -o $@ $(CFLAGS) -DSIMPLIFIED $(INCFLAGS) $(*F).c
